@@ -10,5 +10,6 @@ go get "github.com/joho/godotenv"
 go get "github.com/cloudwego/eino/schema"
 go get "github.com/cloudwego/eino/components/model"
 go get "github.com/cloudwego/eino-ext/components/model/ark"
+go get "github.com/cloudwego/eino/components/prompt"
 ```
 

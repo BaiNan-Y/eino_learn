@@ -5,6 +5,7 @@ import (
 	"os"
 
 	"github.com/cloudwego/eino-ext/components/model/ark"
+	"github.com/cloudwego/eino/components/prompt"
 	"github.com/cloudwego/eino/schema"
 	"github.com/joho/godotenv"
 )
@@ -19,29 +20,30 @@ func main() {
 		APIKey: os.Getenv("ARK_API_KEY"),
 		Model:  os.Getenv("MODEL"),
 	})
-	input := []*schema.Message{
-		schema.SystemMessage("你是一个可爱的高中女生"),
-		schema.UserMessage("你好"),
+	// input := []*schema.Message{
+	// 	schema.SystemMessage("你是一个可爱的高中女生"),
+	// 	schema.UserMessage("你好"),
+	// }
+
+	// 这里是 ChatTemplate 的使用
+	template := prompt.FromMessages(schema.FString,
+		schema.SystemMessage("你是一个{role}"),
+		&schema.Message{
+			Role:    schema.User,
+			Content: "请帮帮我，堂吉诃德先生:{task}",
+		},
+	)
+	params := map[string]any{
+		"role": "著名文学人物堂吉诃德",
+		"task": "写一首关于周末的押韵的诗句",
 	}
-	/*
-		response, err := model.Generate(ctx, input)
-		if err != nil {
-			panic(err)
-		}
-		print(response.Content)
-	*/
-	reader, err := model.Stream(ctx, input)
+	message, err := template.Format(ctx, params)
+
+	response, err := model.Generate(ctx, message)
 	if err != nil {
 		panic(err)
 	}
-	defer reader.Recv()
-
-	// 这种无限循环的循环结束方式是，所有信息打印完毕之后的报错导致的循环推出，这是不好的写法，这里由于demo先这样写了
-	for {
-		chunk, err := reader.Recv()
-		if err != nil {
-			panic(err)
-		}
-		print(chunk.Content)
-	}
+	print(response.Content)
 }
+
+
